@@ -1,6 +1,6 @@
 # RoboLab FTC — Project Context
 
-Snapshot: 2026-07-21. Active branch and Vercel production branch: `main`, including the progressive six-lesson curriculum, opt-in AI guidance, and the browser-side robot code IDE.
+Snapshot: 2026-07-25. Active branch and Vercel production branch: `main`, including the progressive six-lesson curriculum, opt-in AI guidance, and the browser-side robot code IDE. The app is configured to own `https://robo-labs.net` at the root path rather than being mounted beneath RoboLab Hub.
 
 ## Product and current scope
 
@@ -22,7 +22,7 @@ The prototype does not compile arbitrary JavaScript or FTC SDK Java and is not a
 
 - Next.js 16.2.9 App Router, React 19.2.4, strict TypeScript 5, and Tailwind CSS 4.
 - Three.js, React Three Fiber/Drei, and React Three Rapier provide the 3D field and physics.
-- Simulation, input evaluation, recording, and scoring run in the browser; public `POST /ftc/api/analyze` runs on the Node runtime through the app-local `/api/analyze` route.
+- Simulation, input evaluation, recording, and scoring run in the browser; public `POST /api/analyze` runs on the Node runtime.
 - Offline CAD scripts use FreeCAD and Blender and are not web-runtime dependencies.
 
 Important paths:
@@ -92,7 +92,7 @@ There is no automated test runner yet.
 5. The simulator repairs custom timeline state with a Rapier recording pass, which remains complex.
 6. The high-poly field visual mesh is also used for collision and should be replaced incrementally with simpler colliders.
 7. The simulator, scene, and analysis route are large and need incremental separation.
-8. `/ftc/api/analyze` still needs deployment authentication, rate limiting, and provider observability.
+8. `/api/analyze` still needs deployment authentication, rate limiting, and provider observability.
 
 ## Verification (2026-07-15 merge repair)
 
@@ -127,7 +127,7 @@ There is no automated test runner yet.
 - The editor header no longer uses decorative macOS window controls; its file badge and title bar use RoboLab's purple/dark panel styling. Desktop checks at 1280x720 confirmed that Run simulation and Start TeleOp remain visible in a fixed action footer while setup scrolls independently; the 800px responsive layout returns to normal document flow.
 - All six Sandbox setup cards expanded and collapsed from their title rows and retained the appropriate Autonomous or TeleOp controls. Robot goal and Robot code opened by default while the remaining cards started closed. The compact code card rendered at 420px with a two-row toolbar and only editing/cursor status; expanded mode restored the complete status bar. The responsive 800px editor rendered at 400px while actions remained in normal flow.
 - Sandbox rendered a blank, prompted Robot goal and Robot code before Simulation mode and the remaining setup cards. Beginner Learning rendered a combined Learning objective/scenario card followed by Robot code; advanced Learning kept Robot preset and Field configuration after those two. Learning objective and Robot code opened by default. Learning exposed no mode selector or virtual gamepad and remained Autonomous. The editor exposed only Commands and Expand/Collapse, with 94×34px expanded action targets.
-- Sandbox-level and Learning-scenario URL updates preserve the configured `/ftc` base path, so refreshing after a selection does not fall through to the unmounted `/simulator` route.
+- Sandbox-level and Learning-scenario URL updates use the shared route-path helper, so refreshing after a selection stays on `/simulator`.
 - The default Autonomous program still completed playback with one classified goal, 3 points, telemetry, and local fallback analysis.
 - TeleOp kept its editor suggestions limited to supported actions and `gamepad1` controls, exposed the virtual controller only in TeleOp, and completed the existing start/stop and analysis-unlock lifecycle.
 - Browser console output contained only the existing Three.js and Rapier initialization deprecation warnings.
@@ -146,3 +146,9 @@ There is no automated test runner yet.
 - Autocomplete keyboard navigation no longer resets to the first suggestion on textarea keyup. Repeated Arrow Down/Up inputs retain the intended highlight, and Tab accepts the currently highlighted command with its argument caret placement intact.
 - Autocomplete is context-aware: automatic and Ctrl+Space suggestions stay hidden inside `//` comments, `/* ... */` comments, and quoted strings, while remaining available on executable code lines.
 - The suggestion menu measures available editor space, opens above or below with a six-pixel gap from the active line, and stays clamped inside the editor at a readable header-plus-row height even while the textarea scroll position is updating. Its viewport measurement reconnects when the editor moves between compact and expanded rendering, and the replacement textarea cancels the old textarea's delayed blur, preventing expanded suggestions from becoming invisible or disabled. Lesson 2A now starts from three concise, goal-aligned TODOs with executable code lines between them instead of a mostly completed intake routine. Its completion catalog uses the same `intake.setPower(...)` name as the lesson code, and its published solution still collects one artifact and passes all local checks.
+
+## Domain migration (2026-07-25)
+
+- RoboLab FTC now serves from `/` and is intended to own `https://robo-labs.net` directly.
+- Legacy `/ftc` and `/ftc/*` requests permanently redirect to their root-path equivalents.
+- The production Vercel project still deploys from `main` with `my-app/frontend` as its Root Directory.

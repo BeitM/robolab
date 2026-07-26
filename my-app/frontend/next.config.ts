@@ -1,8 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  basePath: "/ftc",
   reactCompiler: true,
+  async redirects() {
+    return [
+      { source: "/ftc", destination: "/", permanent: true },
+      { source: "/ftc/:path*", destination: "/:path*", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;
